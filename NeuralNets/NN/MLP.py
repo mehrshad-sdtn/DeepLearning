@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
+from utils import get_activation
+
 
 class MLP():
     def __init__(self, layers):
@@ -13,8 +15,11 @@ class MLP():
         self.labels = batch['labels']
 
 
-    def build_network(self, X, y):
-        """Building the structure of the neural network"""
+    def build_network(self, X, y, loss):
+        """Building the structure and loss function of the neural network"""
+
+        self.loss = get_loss_function(loss) #TODO
+
         self.data_in({'data': X, 'labels': y})
         self.A = [self.data]
 
@@ -32,9 +37,10 @@ class MLP():
         
     def forward_pass(self):
         for i in range(len(self.layers) - 1):
-            Z = np.dot(self.W[i], self.A[i]) + B[i]
-            activation = get_activation(self.layers[i + 1]['activation'])
+            Z = np.dot(self.A[i], self.W[i]) + self.B[i]
+            activation = get_activation(self.layers[i + 1]['activation'])    
             self.A[i + 1] = activation(Z)
+
 
     def backward_pass(self):
         pass
@@ -55,4 +61,5 @@ if __name__ == '__main__':
     iris = load_iris()
     # Split the dataset into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2)
-    net.build_network(X_train, y_train)
+    net.build_network(X_train, y_train, loss="BCE")
+    net.forward_pass()
